@@ -1,0 +1,6 @@
+node_modules/
+dist/
+.env
+public/firebase-config.js
+firebase-env.js
+.DS_Store

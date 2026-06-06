@@ -1,0 +1,15 @@
+{
+  "name": "invoice-generator",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "sync-config": "node scripts/sync-firebase-config.mjs",
+    "dev": "npm run sync-config && vite",
+    "build": "npm run sync-config && vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^6.3.5"
+  }
+}

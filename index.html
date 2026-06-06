@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aadya Health Sciences – Tax Invoice</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>🧾 Tax Invoice Generator</h1>
+    <section class="billing-section">
+      <h2>Billing Information</h2>
+      <div class="form-row">
+        <label>Billing Name <input type="text" id="billingName" placeholder="Full name"></label>
+        <label>Contact Number <input type="tel" id="billingContact" placeholder="Mobile"></label>
+      </div>
+      <div class="form-row">
+        <label>Billing Address <input type="text" id="billingAddress" placeholder="Street, city, state"></label>
+        <label>Billing Date <input type="date" id="billingDate"></label>
+      </div>
+    </section>
+
+    <section class="products-section">
+      <h2>Products / Services</h2>
+      <div class="table-wrapper">
+        <table id="productTable">
+          <thead>
+            <tr>
+              <th scope="col">Select</th>
+              <th scope="col">Product</th>
+              <th scope="col" class="col-num">Qty</th>
+              <th scope="col" class="col-num">Price (₹)</th>
+              <th scope="col" class="col-num">Disc %</th>
+              <th scope="col" class="col-num">Amount (₹)</th>
+            </tr>
+          </thead>
+          <tbody id="productBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="summary-section">
+      <div class="overall-discount">
+        <label>Overall Discount (%) <input type="number" id="overallDiscount" min="0" value="0" step="0.1"></label>
+      </div>
+      <div class="totals">
+        <p>Subtotal: ₹<span id="subtotal">0</span></p>
+        <p>Invoice Discount: ₹<span id="invoiceDiscount">0</span></p>
+        <p>Taxable Amount: ₹<span id="taxable">0</span></p>
+        <p>SGST (9%): ₹<span id="sgst">0</span></p>
+        <p>CGST (9%): ₹<span id="cgst">0</span></p>
+        <p><strong>Grand Total: ₹<span id="grandTotal">0</span></strong></p>
+        <p class="words" id="amountWords"></p>
+      </div>
+    </section>
+
+    <div class="action-buttons">
+      <button id="previewBtn" type="button">📄 Preview Invoice</button>
+      <button id="generateBtn" type="button">💾 Save & Generate Invoice</button>
+      <button id="downloadBtn" type="button">⬇️ Download PDF</button>
+    </div>
+  </div>
+
+  <div id="invoicePreview" style="display:none;"></div>
+  <script type="module" src="script.js"></script>
+</body>
+</html>

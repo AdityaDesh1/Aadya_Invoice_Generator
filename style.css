@@ -1,0 +1,624 @@
+/* ===================================================
+   Aadya Health Sciences – Tax Invoice Generator
+   Theme: Clean Medical Professional
+   =================================================== */
+
+   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=DM+Mono:wght@400;500&display=swap');
+
+   /* ── Reset & Base ──────────────────────────────────── */
+   *, *::before, *::after {
+     box-sizing: border-box;
+     margin: 0;
+     padding: 0;
+   }
+   
+   :root {
+     --navy:        #0f2d52;
+     --navy-mid:    #1a4070;
+     --blue:        #2a6db5;
+     --blue-light:  #e8f1fb;
+     --accent:      #2196f3;
+     --green:       #1b8a5a;
+     --green-bg:    #e6f6ef;
+     --text:        #1a1f2e;
+     --text-muted:  #6b7585;
+     --border:      #dde3ec;
+     --surface:     #f6f8fc;
+     --white:       #ffffff;
+     --shadow-sm:   0 1px 3px rgba(15,45,82,.08);
+     --shadow-md:   0 4px 16px rgba(15,45,82,.10);
+     --shadow-lg:   0 8px 32px rgba(15,45,82,.13);
+     --radius:      10px;
+     --radius-sm:   6px;
+     --transition:  0.18s ease;
+   }
+   
+   html { font-size: 16px; scroll-behavior: smooth; }
+   
+   body {
+     font-family: 'DM Sans', sans-serif;
+     background: #eef2f8;
+     color: var(--text);
+     min-height: 100vh;
+     padding: 24px 16px 48px;
+     line-height: 1.6;
+   }
+   
+   /* ── Page Header ───────────────────────────────────── */
+   .page-header {
+     max-width: 900px;
+     margin: 0 auto 28px;
+     display: flex;
+     align-items: center;
+     gap: 14px;
+   }
+   
+   .page-header .logo-mark {
+     width: 46px;
+     height: 46px;
+     background: var(--navy);
+     border-radius: var(--radius-sm);
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     font-size: 22px;
+     flex-shrink: 0;
+   }
+   
+   .page-header .brand {
+     display: flex;
+     flex-direction: column;
+   }
+   
+   .page-header .brand-name {
+     font-size: 1.1rem;
+     font-weight: 600;
+     color: var(--navy);
+     letter-spacing: -0.01em;
+   }
+   
+   .page-header .brand-sub {
+     font-size: 0.78rem;
+     color: var(--text-muted);
+     font-weight: 400;
+   }
+   
+   /* ── Container ─────────────────────────────────────── */
+   .container {
+     max-width: 900px;
+     margin: 0 auto;
+     display: flex;
+     flex-direction: column;
+     gap: 20px;
+   }
+   
+   /* Fall back: if no .page-header exists, style the h1 */
+   .container > h1 {
+     font-size: 1.5rem;
+     font-weight: 600;
+     color: var(--navy);
+     padding: 6px 0;
+     letter-spacing: -0.02em;
+   }
+   
+   /* ── Cards (sections) ──────────────────────────────── */
+   section {
+     background: var(--white);
+     border: 1px solid var(--border);
+     border-radius: var(--radius);
+     padding: 24px 28px;
+     box-shadow: var(--shadow-sm);
+     transition: box-shadow var(--transition);
+   }
+   
+   section:hover {
+     box-shadow: var(--shadow-md);
+   }
+   
+   section h2 {
+     font-size: 0.82rem;
+     font-weight: 600;
+     letter-spacing: 0.07em;
+     text-transform: uppercase;
+     color: var(--text-muted);
+     margin-bottom: 18px;
+     padding-bottom: 12px;
+     border-bottom: 1px solid var(--border);
+     display: flex;
+     align-items: center;
+     gap: 8px;
+   }
+   
+   section h2::before {
+     content: '';
+     display: inline-block;
+     width: 3px;
+     height: 14px;
+     background: var(--accent);
+     border-radius: 2px;
+   }
+   
+   /* ── Billing Form ──────────────────────────────────── */
+   .form-row {
+     display: grid;
+     grid-template-columns: 1fr 1fr;
+     gap: 14px;
+     margin-bottom: 14px;
+   }
+   
+   .form-row:last-child { margin-bottom: 0; }
+   
+   .form-row label {
+     display: flex;
+     flex-direction: column;
+     gap: 6px;
+     font-size: 0.83rem;
+     font-weight: 500;
+     color: var(--text-muted);
+     letter-spacing: 0.01em;
+   }
+   
+   .form-row label input {
+     padding: 10px 13px;
+     border: 1.5px solid var(--border);
+     border-radius: var(--radius-sm);
+     font-family: inherit;
+     font-size: 0.93rem;
+     color: var(--text);
+     background: var(--surface);
+     transition: border-color var(--transition), box-shadow var(--transition);
+     outline: none;
+     width: 100%;
+   }
+   
+   .form-row label input:focus {
+     border-color: var(--accent);
+     box-shadow: 0 0 0 3px rgba(33,150,243,.12);
+     background: var(--white);
+   }
+   
+   .form-row label input::placeholder {
+     color: #b0b8c9;
+     font-weight: 400;
+   }
+   
+   /* ── Products Table ────────────────────────────────── */
+   .table-wrapper {
+     overflow-x: auto;
+     -webkit-overflow-scrolling: touch;
+     margin: 0 -4px;
+     padding: 4px;
+   }
+   
+   #productTable {
+     width: 100%;
+     border-collapse: collapse;
+     font-size: 0.88rem;
+     min-width: 640px;
+   }
+   
+   #productTable thead tr {
+     background: var(--navy);
+   }
+   
+   #productTable thead th {
+     padding: 11px 14px;
+     text-align: left;
+     color: rgba(255,255,255,.85);
+     font-size: 0.76rem;
+     font-weight: 500;
+     letter-spacing: 0.06em;
+     text-transform: uppercase;
+     white-space: nowrap;
+   }
+   
+   #productTable thead th:first-child { border-radius: var(--radius-sm) 0 0 0; }
+   #productTable thead th:last-child  { border-radius: 0 var(--radius-sm) 0 0; }
+
+   #productTable thead th.col-num,
+   #productTable tbody td.price-cell,
+   #productTable tbody td.amount-cell {
+     text-align: right;
+   }
+   
+   #productTable tbody tr {
+     border-bottom: 1px solid var(--border);
+     transition: background var(--transition);
+   }
+   
+   #productTable tbody tr:last-child { border-bottom: none; }
+   
+   #productTable tbody tr:hover {
+     background: var(--blue-light);
+   }
+   
+   #productTable tbody td {
+     padding: 10px 14px;
+     vertical-align: middle;
+     color: var(--text);
+   }
+   
+   /* Checkbox */
+   .product-check {
+     width: 17px;
+     height: 17px;
+     cursor: pointer;
+     accent-color: var(--accent);
+   }
+   
+   /* Product name */
+   .product-name {
+     font-weight: 500;
+     color: var(--navy-mid);
+   }
+   
+   /* Inline inputs (qty / discount) */
+   #productTable tbody input[type="number"] {
+     width: 70px;
+     padding: 6px 9px;
+     border: 1.5px solid var(--border);
+     border-radius: var(--radius-sm);
+     font-family: 'DM Mono', monospace;
+     font-size: 0.85rem;
+     color: var(--text);
+     background: var(--surface);
+     transition: border-color var(--transition), box-shadow var(--transition);
+     outline: none;
+     text-align: right;
+   }
+   
+   #productTable tbody input[type="number"]:not(:disabled):focus {
+     border-color: var(--accent);
+     box-shadow: 0 0 0 3px rgba(33,150,243,.12);
+     background: var(--white);
+   }
+   
+   #productTable tbody input[type="number"]:disabled {
+     background: transparent;
+     border-color: transparent;
+     color: var(--text-muted);
+     cursor: not-allowed;
+   }
+   
+   /* Amount cell */
+   .amount-cell {
+     font-family: 'DM Mono', monospace;
+     font-size: 0.88rem;
+     font-weight: 500;
+     color: var(--navy);
+     text-align: right;
+   }
+   
+   /* ── Summary Section ───────────────────────────────── */
+   .summary-section {
+     display: grid;
+     grid-template-columns: 1fr 1fr;
+     gap: 28px;
+     align-items: start;
+   }
+   
+   .overall-discount label {
+     display: flex;
+     flex-direction: column;
+     gap: 6px;
+     font-size: 0.83rem;
+     font-weight: 500;
+     color: var(--text-muted);
+   }
+   
+   .overall-discount input {
+     padding: 10px 13px;
+     border: 1.5px solid var(--border);
+     border-radius: var(--radius-sm);
+     font-family: 'DM Mono', monospace;
+     font-size: 0.93rem;
+     color: var(--text);
+     background: var(--surface);
+     transition: border-color var(--transition), box-shadow var(--transition);
+     outline: none;
+     width: 140px;
+   }
+   
+   .overall-discount input:focus {
+     border-color: var(--accent);
+     box-shadow: 0 0 0 3px rgba(33,150,243,.12);
+     background: var(--white);
+   }
+   
+   .totals {
+     background: var(--surface);
+     border: 1px solid var(--border);
+     border-radius: var(--radius-sm);
+     padding: 16px 20px;
+   }
+   
+   .totals p {
+     display: flex;
+     justify-content: space-between;
+     align-items: center;
+     padding: 6px 0;
+     font-size: 0.88rem;
+     color: var(--text-muted);
+     border-bottom: 1px solid var(--border);
+   }
+   
+   .totals p:last-child { border-bottom: none; }
+   
+   .totals p span,
+   .totals p strong span {
+     font-family: 'DM Mono', monospace;
+     color: var(--text);
+     font-weight: 500;
+   }
+   
+   .totals p strong {
+     display: flex;
+     justify-content: space-between;
+     width: 100%;
+     font-size: 0.97rem;
+     color: var(--navy);
+     padding-top: 4px;
+   }
+   
+   .totals p strong span {
+     color: var(--navy);
+     font-size: 1rem;
+   }
+   
+   .totals p.words {
+     display: block;
+     padding: 10px 12px;
+     background: var(--green-bg);
+     border: 1px solid #b8e4d0;
+     border-radius: var(--radius-sm);
+     font-size: 0.8rem;
+     font-style: italic;
+     color: var(--green);
+     margin-top: 8px;
+     line-height: 1.5;
+     text-align: left;
+   }
+   
+   /* ── Action Buttons ────────────────────────────────── */
+   .action-buttons {
+     display: flex;
+     gap: 12px;
+     flex-wrap: wrap;
+     background: var(--white);
+     border: 1px solid var(--border);
+     border-radius: var(--radius);
+     padding: 20px 28px;
+     box-shadow: var(--shadow-sm);
+   }
+   
+   .action-buttons button {
+     flex: 1;
+     min-width: 160px;
+     padding: 12px 20px;
+     border: none;
+     border-radius: var(--radius-sm);
+     font-family: inherit;
+     font-size: 0.9rem;
+     font-weight: 500;
+     cursor: pointer;
+     transition: all var(--transition);
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     gap: 8px;
+     letter-spacing: 0.01em;
+     white-space: nowrap;
+   }
+   
+   /* Preview */
+   #previewBtn {
+     background: var(--surface);
+     color: var(--navy-mid);
+     border: 1.5px solid var(--border);
+   }
+   
+   #previewBtn:hover {
+     background: var(--blue-light);
+     border-color: var(--accent);
+     color: var(--blue);
+     transform: translateY(-1px);
+     box-shadow: var(--shadow-sm);
+   }
+   
+   /* Save & Generate */
+   #generateBtn {
+     background: var(--navy);
+     color: var(--white);
+   }
+   
+   #generateBtn:hover {
+     background: var(--navy-mid);
+     transform: translateY(-1px);
+     box-shadow: 0 4px 14px rgba(15,45,82,.25);
+   }
+   
+   /* Download */
+   #downloadBtn {
+     background: var(--accent);
+     color: var(--white);
+   }
+   
+   #downloadBtn:hover:not(:disabled) {
+     background: #1976d2;
+     transform: translateY(-1px);
+     box-shadow: 0 4px 14px rgba(33,150,243,.30);
+   }
+   
+   #downloadBtn:disabled {
+     background: var(--border);
+     color: var(--text-muted);
+     cursor: not-allowed;
+     transform: none;
+     box-shadow: none;
+     opacity: 0.7;
+   }
+   
+   button:active { transform: translateY(0) !important; }
+   
+   /* ── Scrollbar (table) ─────────────────────────────── */
+   .table-wrapper::-webkit-scrollbar { height: 5px; }
+   .table-wrapper::-webkit-scrollbar-track { background: transparent; }
+   .table-wrapper::-webkit-scrollbar-thumb {
+     background: var(--border);
+     border-radius: 10px;
+   }
+   
+   /* ── Responsive – Tablet (≤ 720px) ────────────────── */
+   @media (max-width: 720px) {
+     body { padding: 16px 12px 40px; }
+   
+     section { padding: 18px 16px; }
+   
+     .form-row {
+       grid-template-columns: 1fr;
+     }
+   
+     .summary-section {
+       grid-template-columns: 1fr;
+       gap: 16px;
+     }
+   
+     .overall-discount input { width: 100%; }
+
+     .table-wrapper {
+       margin: 0 -8px;
+       padding: 0 8px 4px;
+     }
+   
+     .action-buttons {
+       padding: 16px;
+       gap: 10px;
+     }
+   
+     .action-buttons button {
+       min-width: 100%;
+       flex: unset;
+       width: 100%;
+     }
+   }
+
+   /* ── Responsive – Mobile cards (≤ 600px) ──────────── */
+   @media (max-width: 600px) {
+     .table-wrapper {
+       overflow-x: visible;
+       margin: 0;
+       padding: 0;
+     }
+
+     #productTable {
+       min-width: 0;
+       display: block;
+     }
+
+     #productTable thead {
+       display: none;
+     }
+
+     #productTable tbody {
+       display: flex;
+       flex-direction: column;
+       gap: 12px;
+     }
+
+     #productTable tbody tr {
+       display: block;
+       border: 1.5px solid var(--border);
+       border-radius: var(--radius-sm);
+       padding: 14px;
+       background: var(--surface);
+       transition: border-color var(--transition), background var(--transition), box-shadow var(--transition);
+     }
+
+     #productTable tbody tr:hover {
+       background: var(--surface);
+     }
+
+     #productTable tbody tr:has(.product-check:checked) {
+       border-color: var(--accent);
+       background: var(--blue-light);
+       box-shadow: var(--shadow-sm);
+     }
+
+     #productTable tbody td {
+       display: flex;
+       justify-content: space-between;
+       align-items: center;
+       gap: 12px;
+       padding: 7px 0;
+       border-bottom: 1px solid var(--border);
+     }
+
+     #productTable tbody td:last-child {
+       border-bottom: none;
+       padding-bottom: 0;
+     }
+
+     #productTable tbody td::before {
+       content: attr(data-label);
+       font-size: 0.72rem;
+       font-weight: 600;
+       letter-spacing: 0.05em;
+       text-transform: uppercase;
+       color: var(--text-muted);
+       flex-shrink: 0;
+     }
+
+     #productTable tbody td.product-name {
+       display: block;
+       border-bottom: 1px solid var(--border);
+       padding: 0 0 10px;
+       margin-bottom: 4px;
+       font-size: 0.95rem;
+       line-height: 1.4;
+     }
+
+     #productTable tbody td.product-name::before {
+       display: none;
+     }
+
+     #productTable tbody td[data-label="Select"] {
+       border-bottom: none;
+       padding-top: 0;
+       margin-bottom: 2px;
+     }
+
+     #productTable tbody input[type="number"] {
+       width: 88px;
+       flex-shrink: 0;
+     }
+
+     #productTable tbody td.price-cell,
+     #productTable tbody td.amount-cell {
+       font-family: 'DM Mono', monospace;
+       font-weight: 500;
+     }
+   }
+   
+   /* ── Responsive – Mobile (≤ 480px) ────────────────── */
+   @media (max-width: 480px) {
+     body { padding: 12px 8px 32px; }
+   
+     section { padding: 16px 14px; }
+   
+     section h2 { font-size: 0.76rem; }
+   
+     .totals p { font-size: 0.83rem; }
+   
+     .action-buttons { padding: 14px 12px; }
+
+     #productTable tbody tr {
+       padding: 12px;
+     }
+   }
+   
+   /* ── Print / PDF friendliness ──────────────────────── */
+   @media print {
+     body { background: white; padding: 0; }
+     .action-buttons { display: none; }
+     section { box-shadow: none; border: 1px solid #ddd; }
+   }
