@@ -64,7 +64,16 @@
     </div>
   </div>
 
-  <div id="invoicePreview" style="display:none;"></div>
+  <div id="invoicePreview" class="preview-modal" hidden aria-hidden="true">
+    <div class="preview-modal-backdrop" data-close-preview></div>
+    <div class="preview-modal-dialog" role="dialog" aria-labelledby="previewTitle">
+      <div class="preview-modal-header">
+        <h2 id="previewTitle">Invoice Preview</h2>
+        <button type="button" id="closePreviewBtn" class="preview-close-btn" aria-label="Close preview">&times;</button>
+      </div>
+      <div class="preview-modal-body" id="previewContent"></div>
+    </div>
+  </div>
   <script type="module" src="script.js"></script>
 </body>
 </html>

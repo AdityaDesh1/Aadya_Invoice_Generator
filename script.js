@@ -78,7 +78,7 @@ const COMPANY = {
 };
 
 const LOGO_URL = "/LinQMD_Logo.svg";
-// const LOGO_FALLBACK_URL = "https://home.linqmd.com/assets/images/header/LinQMD_Logo.svg";
+const LOGO_FALLBACK_URL = "https://home.linqmd.com/assets/images/header/LinQMD_Logo.svg";
 
 const products = [
   { name: "Practice Hub Yearly Subscription", price: 12000 },
@@ -409,6 +409,14 @@ function buildInvoiceFromForm() {
   };
 }
 
+function closePreview() {
+  const modal = document.getElementById("invoicePreview");
+  if (!modal || modal.hidden) return;
+  modal.hidden = true;
+  modal.setAttribute("aria-hidden", "true");
+  document.body.style.overflow = "";
+}
+
 function showPreview() {
   const billingName = document.getElementById("billingName").value.trim();
   const billingAddress = document.getElementById("billingAddress").value.trim();
@@ -431,12 +439,6 @@ function showPreview() {
     currentInvoiceData?.invoiceData?.invoiceNumber ||
     `INV_AHSPL_${new Date().getFullYear()}_XXX (To be generated)`;
 
-  const previewWindow = window.open("", "_blank", "width=860,height=720");
-  if (!previewWindow) {
-    alert("Please allow pop-ups to preview the invoice.");
-    return;
-  }
-
   const previewInvoice = {
     billingName,
     billingAddress,
@@ -446,16 +448,19 @@ function showPreview() {
     products: productsArray,
   };
 
-  previewWindow.document.write(`
-    <html>
-      <head>
-        <title>Invoice Preview</title>
-        <style>${getInvoiceStyles()} body { padding: 40px; max-width: 900px; margin: 0 auto; }</style>
-      </head>
-      <body>${buildFullInvoiceHtml(previewInvoice, totals)}</body>
-    </html>
-  `);
-  previewWindow.document.close();
+  const modal = document.getElementById("invoicePreview");
+  const content = document.getElementById("previewContent");
+  if (!modal || !content) return;
+
+  try {
+    content.innerHTML = `<style>${getInvoiceStyles()}</style>${buildFullInvoiceHtml(previewInvoice, totals)}`;
+    modal.hidden = false;
+    modal.setAttribute("aria-hidden", "false");
+    document.body.style.overflow = "hidden";
+  } catch (error) {
+    console.error("Preview failed:", error);
+    alert("Could not open preview. Please refresh the page and try again.");
+  }
 }
 
 async function generateInvoiceNumber() {
@@ -598,6 +603,11 @@ function initApp() {
   });
 
   document.getElementById("previewBtn")?.addEventListener("click", showPreview);
+  document.getElementById("closePreviewBtn")?.addEventListener("click", closePreview);
+  document.querySelector("[data-close-preview]")?.addEventListener("click", closePreview);
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") closePreview();
+  });
 
   document.getElementById("downloadBtn")?.addEventListener("click", async () => {
     const downloadBtn = document.getElementById("downloadBtn");
