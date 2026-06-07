@@ -156,29 +156,65 @@ async function loadLogoForPdf() {
   }
 }
 
-function getInvoiceStyles() {
-  return `
+function getInvoiceStyles(forPdf = false) {
+  const baseStyles = `
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: Arial, Helvetica, sans-serif; color: #1a1f2e; background: #fff; }
-    .invoice-box { border: 2px solid #eee; padding: 30px; border-radius: 10px; background: #fff; width: 820px; }
+    .invoice-box { border: 2px solid #eee; padding: 30px; border-radius: 10px; background: #fff; width: 100%; max-width: 820px; margin: 0 auto; }
     .invoice-title { text-align: center; font-size: 26px; font-weight: bold; color: #0f2d52; letter-spacing: 0.08em; margin-bottom: 24px; }
-    .invoice-header-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; margin-bottom: 28px; }
+    .invoice-header-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; margin-bottom: 28px; flex-wrap: wrap; }
+    .invoice-logo { flex: 0 0 auto; }
     .invoice-logo img { height: 56px; width: auto; max-width: 200px; object-fit: contain; display: block; }
-    .invoice-company { text-align: right; font-size: 13px; line-height: 1.6; color: #333; flex: 1; }
-    .invoice-company .company-name { font-size: 16px; font-weight: bold; color: #0f2d52; margin-bottom: 4px; }
+    .invoice-company { text-align: right; font-size: 13px; line-height: 1.6; color: #333; min-width: 200px; }
     .bill-to { margin: 20px 0; padding: 15px; background: #f5f5f5; border-radius: 5px; font-size: 14px; line-height: 1.7; }
     .bill-to-address { line-height: 1.6; margin: 4px 0 8px; }
     table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px; }
     th { background: #0f2d52; color: #fff; padding: 12px 14px; text-align: left; font-weight: 600; }
     th.num, td.num { text-align: right; }
     th.center, td.center { text-align: center; }
-    td { padding: 10px 14px; border-bottom: 1px solid #ddd; vertical-align: top; }
+    td { padding: 10px 14px; border-bottom: 1px solid #ddd; vertical-align: top; word-break: break-word; }
     td.product-name { font-weight: 500; }
     .summary { background: #f9f9f9; padding: 20px; border-radius: 8px; margin-top: 20px; max-width: 380px; margin-left: auto; }
     .summary-item { display: flex; justify-content: space-between; gap: 24px; margin: 10px 0; font-size: 14px; }
     .summary-item span:last-child { font-variant-numeric: tabular-nums; white-space: nowrap; }
     .grand-total { font-size: 18px; font-weight: bold; color: #0f2d52; border-top: 2px solid #333; padding-top: 10px; margin-top: 6px; }
     .words { background: #e8f4f8; padding: 15px; border-radius: 5px; margin: 20px 0 0; font-style: italic; font-size: 14px; line-height: 1.5; }
+  `;
+
+  if (forPdf) {
+  return `
+    ${baseStyles}
+    body { min-width: 860px; }
+    .invoice-box { width: 820px; max-width: 820px; padding: 30px; }
+    table { min-width: 760px; width: 100%; table-layout: fixed; }
+    table th:nth-child(1), table td:nth-child(1) { width: 44%; }
+    table th:nth-child(2), table td:nth-child(2) { width: 10%; }
+    table th:nth-child(3), table td:nth-child(3) { width: 16%; }
+    table th:nth-child(4), table td:nth-child(4) { width: 12%; }
+    table th:nth-child(5), table td:nth-child(5) { width: 18%; }
+    th, td { white-space: normal; overflow: hidden; }
+  `;
+}
+
+  return `
+    ${baseStyles}
+    @media (max-width: 720px) {
+      .invoice-box { padding: 20px; }
+      .invoice-title { font-size: 22px; }
+      .invoice-header-row { gap: 16px; flex-direction: column; align-items: flex-start; }
+      .invoice-company { text-align: left; }
+      .bill-to { padding: 14px; }
+      table { min-width: 0; }
+      th, td { padding: 10px 10px; font-size: 13px; }
+      .summary { margin-left: 0; max-width: 100%; }
+      .summary-item { gap: 12px; }
+    }
+    @media (max-width: 520px) {
+      table { display: block; overflow-x: auto; }
+      th, td { white-space: nowrap; }
+      .invoice-box { padding: 16px; }
+      .invoice-title { font-size: 20px; }
+    }
   `;
 }
 
@@ -231,7 +267,7 @@ function buildFullInvoiceHtml(invoice, totals) {
         <thead>
           <tr>
             <th>Product</th>
-            <th class="center">Qty</th>f
+            <th class="center">Qty</th>
             <th class="num">Price</th>
             <th class="center">Disc%</th>
             <th class="num">Amount</th>
@@ -517,8 +553,8 @@ async function generatePDF(invoice, totals) {
   }
 
   const wrapper = document.createElement("div");
-  wrapper.style.cssText = "position:fixed;left:-10000px;top:0;z-index:-1;background:#fff;";
-  wrapper.innerHTML = `<style>${getInvoiceStyles()}</style>${buildFullInvoiceHtml(invoice, totals)}`;
+  wrapper.style.cssText = "position:absolute;left:-100000px;top:0;width:860px;min-width:860px;overflow:visible;background:#fff;";
+  wrapper.innerHTML = `<style>${getInvoiceStyles(true)}</style>${buildFullInvoiceHtml(invoice, totals)}`;
   document.body.appendChild(wrapper);
 
   const invoiceBox = wrapper.querySelector(".invoice-box");
