@@ -34,11 +34,8 @@ let dbPromise = null;
 function getFirebaseErrorMessage(error) {
   const code = error?.code || "";
   const message = error?.message || "";
-
   if (code === "permission-denied" || message.includes("insufficient permissions")) {
-    return (
-      "Firestore permission denied. In Firebase Console go to Firestore → Rules and allow access to settings and invoices collections, then publish."
-    );
+    return "Firestore permission denied. In Firebase Console go to Firestore → Rules and allow access to settings and invoices collections, then publish.";
   }
   if (message.includes("not configured")) return message;
   return message || "Save & Generate failed. Check the browser console for details.";
@@ -46,24 +43,16 @@ function getFirebaseErrorMessage(error) {
 
 async function getDb() {
   if (!isFirebaseConfigured) {
-    throw new Error(
-      "Firebase is not configured. Add credentials to .env, then run: npm run dev"
-    );
+    throw new Error("Firebase is not configured. Add credentials to .env, then run: npm run dev");
   }
-
   if (!dbPromise) {
     dbPromise = (async () => {
-      const { initializeApp } = await import(
-        "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js"
-      );
-      const { getFirestore } = await import(
-        "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js"
-      );
+      const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js");
+      const { getFirestore } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js");
       const app = initializeApp(firebaseConfig);
       return getFirestore(app);
     })();
   }
-
   return dbPromise;
 }
 
@@ -78,7 +67,7 @@ const COMPANY = {
 };
 
 const LOGO_URL = "/LinQMD_Logo.svg";
-const LOGO_FALLBACK_URL = "https://home.linqmd.com/assets/images/header/LinQMD_Logo.svg";
+const LOGO_FALLBACK_URL = "https://home.linqmd.com/assets/images/homepage/FooterLogo.svg";
 
 const products = [
   { name: "Practice Hub Yearly Subscription", price: 12000 },
@@ -93,6 +82,17 @@ const products = [
 let currentInvoiceData = null;
 let logoDataUrl = null;
 
+/* ── Supply location state ──────────────────────────── */
+function getSupplyType() {
+  const checked = document.querySelector('input[name="supplyLocation"]:checked');
+  return checked ? checked.value : "intra"; // "intra" or "inter"
+}
+
+function isInterState() {
+  return getSupplyType() === "inter";
+}
+
+/* ── Amount in words ───────────────────────────────── */
 function amountToWords(amount) {
   if (amount === 0) return "Zero Rupees Only";
   const ones = ["", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine"];
@@ -116,12 +116,8 @@ function amountToWords(amount) {
   );
 }
 
-/** Split address on commas so each part appears on its own line. */
 function formatBillingAddress(address) {
-  return address
-    .split(",")
-    .map((part) => part.trim())
-    .filter(Boolean);
+  return address.split(",").map((part) => part.trim()).filter(Boolean);
 }
 
 function formatBillingAddressHtml(address) {
@@ -156,6 +152,7 @@ async function loadLogoForPdf() {
   }
 }
 
+/* ── Invoice HTML styles ────────────────────────────── */
 function getInvoiceStyles(forPdf = false) {
   const baseStyles = `
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -164,7 +161,7 @@ function getInvoiceStyles(forPdf = false) {
     .invoice-title { text-align: center; font-size: 26px; font-weight: bold; color: #0f2d52; letter-spacing: 0.08em; margin-bottom: 24px; }
     .invoice-header-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; margin-bottom: 28px; flex-wrap: wrap; }
     .invoice-logo { flex: 0 0 auto; }
-    .invoice-logo img { height: 56px; width: auto; max-width: 200px; object-fit: contain; display: block; }
+    .invoice-logo img { height: auto; width: auto; max-width: 200px; object-fit: contain; display: block; }
     .invoice-company { text-align: right; font-size: 13px; line-height: 1.6; color: #333; min-width: 200px; }
     .bill-to { margin: 20px 0; padding: 15px; background: #f5f5f5; border-radius: 5px; font-size: 14px; line-height: 1.7; }
     .bill-to-address { line-height: 1.6; margin: 4px 0 8px; }
@@ -179,22 +176,26 @@ function getInvoiceStyles(forPdf = false) {
     .summary-item span:last-child { font-variant-numeric: tabular-nums; white-space: nowrap; }
     .grand-total { font-size: 18px; font-weight: bold; color: #0f2d52; border-top: 2px solid #333; padding-top: 10px; margin-top: 6px; }
     .words { background: #e8f4f8; padding: 15px; border-radius: 5px; margin: 20px 0 0; font-style: italic; font-size: 14px; line-height: 1.5; }
+    .invoice-stamp { display: flex; align-items: flex-start; gap: 12px; margin-top: 24px; padding: 12px 16px; border: 1.5px dashed #ccc; border-radius: 8px; background: #f9f9f9; }
+    .invoice-stamp-icon { font-size: 22px; flex-shrink: 0; margin-top: 2px; }
+    .invoice-stamp-text { font-size: 11px; color: #555; line-height: 1.55; }
+    .invoice-stamp-text strong { display: block; font-size: 12px; color: #0f2d52; margin-bottom: 2px; }
   `;
 
   if (forPdf) {
-  return `
-    ${baseStyles}
-    body { min-width: 860px; }
-    .invoice-box { width: 820px; max-width: 820px; padding: 30px; }
-    table { min-width: 760px; width: 100%; table-layout: fixed; }
-    table th:nth-child(1), table td:nth-child(1) { width: 44%; }
-    table th:nth-child(2), table td:nth-child(2) { width: 10%; }
-    table th:nth-child(3), table td:nth-child(3) { width: 16%; }
-    table th:nth-child(4), table td:nth-child(4) { width: 12%; }
-    table th:nth-child(5), table td:nth-child(5) { width: 18%; }
-    th, td { white-space: normal; overflow: hidden; }
-  `;
-}
+    return `
+      ${baseStyles}
+      body { min-width: 860px; }
+      .invoice-box { width: 820px; max-width: 820px; padding: 30px; }
+      table { min-width: 760px; width: 100%; table-layout: fixed; }
+      table th:nth-child(1), table td:nth-child(1) { width: 44%; }
+      table th:nth-child(2), table td:nth-child(2) { width: 10%; }
+      table th:nth-child(3), table td:nth-child(3) { width: 16%; }
+      table th:nth-child(4), table td:nth-child(4) { width: 12%; }
+      table th:nth-child(5), table td:nth-child(5) { width: 18%; }
+      th, td { white-space: normal; overflow: hidden; }
+    `;
+  }
 
   return `
     ${baseStyles}
@@ -236,6 +237,7 @@ function buildInvoiceHeaderHtml() {
   `;
 }
 
+/* ── Build invoice HTML (used for preview + PDF) ────── */
 function buildFullInvoiceHtml(invoice, totals) {
   const productsRows = invoice.products
     .map(
@@ -250,6 +252,16 @@ function buildFullInvoiceHtml(invoice, totals) {
     )
     .join("");
 
+  /* Build tax rows depending on supply type */
+  const taxRows = totals.isInterState
+    ? `<div class="summary-item"><span>IGST (18%):</span><span>${formatRupee(totals.igst)}</span></div>`
+    : `<div class="summary-item"><span>SGST (9%):</span><span>${formatRupee(totals.sgst)}</span></div>
+       <div class="summary-item"><span>CGST (9%):</span><span>${formatRupee(totals.cgst)}</span></div>`;
+
+  const supplyTypeLabel = totals.isInterState
+    ? "Inter-State Supply (Outside Karnataka)"
+    : "Intra-State Supply (Within Karnataka)";
+
   return `
     <div class="invoice-box">
       ${buildInvoiceHeaderHtml()}
@@ -261,6 +273,7 @@ function buildFullInvoiceHtml(invoice, totals) {
         <div><strong>Contact:</strong> ${invoice.contactNumber}</div>
         <div><strong>Date:</strong> ${invoice.billingDate}</div>
         <div><strong>Invoice #:</strong> ${invoice.invoiceNumber}</div>
+        <div><strong>Supply Type:</strong> ${supplyTypeLabel}</div>
       </div>
 
       <table>
@@ -280,20 +293,29 @@ function buildFullInvoiceHtml(invoice, totals) {
         <div class="summary-item"><span>Subtotal:</span><span>${formatRupee(totals.subtotal)}</span></div>
         <div class="summary-item"><span>Invoice Discount (${totals.overallDiscPercent}%):</span><span>${formatRupee(totals.overallDiscAmt)}</span></div>
         <div class="summary-item"><span>Taxable Amount:</span><span>${formatRupee(totals.taxable)}</span></div>
-        <div class="summary-item"><span>SGST (9%):</span><span>${formatRupee(totals.sgst)}</span></div>
-        <div class="summary-item"><span>CGST (9%):</span><span>${formatRupee(totals.cgst)}</span></div>
+        ${taxRows}
         <div class="summary-item grand-total"><span>Grand Total:</span><span>${formatRupee(totals.grandTotal)}</span></div>
       </div>
 
       <div class="words"><strong>Amount in Words:</strong> ${amountToWords(totals.grandTotal)}</div>
+
+      <div class="invoice-stamp">
+        <div class="invoice-stamp-icon">🤖</div>
+        <div class="invoice-stamp-text">
+          <strong>This is a Computer Generated Invoice</strong>
+          Generated by LinQMD Invoice System · Aadya Health Sciences Pvt Ltd ·
+          GSTIN: 29AAZCA5898A1ZX · This invoice does not require a physical signature.
+        </div>
+      </div>
     </div>
   `;
 }
 
+/* ── Render product rows ────────────────────────────── */
 function renderProductRows() {
   const tbody = document.getElementById("productBody");
   if (!tbody) {
-    console.error("Product table not found. Make sure #productBody exists in the page.");
+    console.error("Product table not found.");
     return;
   }
   tbody.innerHTML = "";
@@ -324,10 +346,7 @@ function attachEvents() {
       qtyInp.disabled = !enabled;
       discInp.disabled = !enabled;
       if (enabled && qtyInp.value === "") qtyInp.value = 1;
-      if (!enabled) {
-        qtyInp.value = 1;
-        discInp.value = 0;
-      }
+      if (!enabled) { qtyInp.value = 1; discInp.value = 0; }
       recalcAll();
     });
   });
@@ -339,9 +358,11 @@ function attachEvents() {
   document.getElementById("overallDiscount").addEventListener("input", recalcAll);
 }
 
+/* ── Recalculate totals ─────────────────────────────── */
 function recalcAll() {
   let subtotal = 0;
   const productRows = document.querySelectorAll("#productBody tr");
+  const inter = isInterState();
 
   productRows.forEach((row, idx) => {
     const cb = row.querySelector(".product-check");
@@ -349,14 +370,12 @@ function recalcAll() {
       document.getElementById(`amount-${idx}`).innerText = "0";
       return;
     }
-
     const qty = parseFloat(row.querySelector(".qty").value) || 1;
     const discount = parseFloat(row.querySelector(".discount").value) || 0;
     const price = parseFloat(row.dataset.price);
     const productTotal = price * qty;
     const discAmt = (productTotal * discount) / 100;
     const finalAmt = productTotal - discAmt;
-
     document.getElementById(`amount-${idx}`).innerText = finalAmt.toFixed(2);
     subtotal += finalAmt;
   });
@@ -364,27 +383,33 @@ function recalcAll() {
   const overallDiscPercent = parseFloat(document.getElementById("overallDiscount").value) || 0;
   const overallDiscAmt = (subtotal * overallDiscPercent) / 100;
   const taxable = subtotal - overallDiscAmt;
-  const sgst = (taxable * 9) / 100;
-  const cgst = (taxable * 9) / 100;
-  const grandTotal = taxable + sgst + cgst;
+
+  let sgst = 0, cgst = 0, igst = 0;
+  if (inter) {
+    igst = (taxable * 18) / 100;
+  } else {
+    sgst = (taxable * 9) / 100;
+    cgst = (taxable * 9) / 100;
+  }
+  const grandTotal = taxable + (inter ? igst : sgst + cgst);
 
   document.getElementById("subtotal").innerText = subtotal.toFixed(2);
   document.getElementById("invoiceDiscount").innerText = overallDiscAmt.toFixed(2);
   document.getElementById("taxable").innerText = taxable.toFixed(2);
   document.getElementById("sgst").innerText = sgst.toFixed(2);
   document.getElementById("cgst").innerText = cgst.toFixed(2);
+  document.getElementById("igst").innerText = igst.toFixed(2);
   document.getElementById("grandTotal").innerText = grandTotal.toFixed(2);
   document.getElementById("amountWords").innerText = amountToWords(grandTotal);
 
+  /* Show/hide tax rows */
+  document.getElementById("sgstRow").style.display = inter ? "none" : "flex";
+  document.getElementById("cgstRow").style.display = inter ? "none" : "flex";
+  document.getElementById("igstRow").style.display = inter ? "flex" : "none";
+
   return {
-    subtotal,
-    overallDiscAmt,
-    taxable,
-    sgst,
-    cgst,
-    grandTotal,
-    overallDiscPercent,
-    productsData: collectProducts(),
+    subtotal, overallDiscAmt, taxable, sgst, cgst, igst, grandTotal,
+    overallDiscPercent, isInterState: inter, productsData: collectProducts(),
   };
 }
 
@@ -393,7 +418,6 @@ function collectProducts() {
   document.querySelectorAll("#productBody tr").forEach((row, idx) => {
     const cb = row.querySelector(".product-check");
     if (!cb.checked) return;
-
     items.push({
       name: products[idx].name,
       quantity: parseFloat(row.querySelector(".qty").value) || 1,
@@ -429,22 +453,54 @@ function buildInvoiceFromForm() {
   return {
     invoiceData: {
       invoiceNumber: localNumber,
-      billingName,
-      billingAddress,
-      contactNumber,
-      billingDate,
+      billingName, billingAddress, contactNumber, billingDate,
       products: productsArray,
       subtotal: totals.subtotal,
       invoiceDiscount: totals.overallDiscAmt,
       taxableAmount: totals.taxable,
       sgst: totals.sgst,
       cgst: totals.cgst,
+      igst: totals.igst,
+      isInterState: totals.isInterState,
       grandTotal: totals.grandTotal,
     },
     totals,
   };
 }
 
+/* ── Supply location UI toggle ──────────────────────── */
+function initSupplyToggle() {
+  const pillIntra = document.getElementById("pillIntra");
+  const pillInter = document.getElementById("pillInter");
+  const note = document.getElementById("gstInfoNote");
+  const radioIntra = document.getElementById("supplyIntra");
+  const radioInter = document.getElementById("supplyInter");
+
+  function updateUI(inter) {
+    if (inter) {
+      pillIntra.classList.remove("active");
+      pillInter.classList.remove("active");
+      pillInter.classList.add("active-igst");
+      note.className = "gst-info-note inter";
+      note.innerHTML = `<span class="gst-badge">IGST 18%</span>
+        Inter-state supply — single integrated tax collected by central government.`;
+    } else {
+      pillInter.classList.remove("active-igst");
+      pillIntra.classList.add("active");
+      note.className = "gst-info-note intra";
+      note.innerHTML = `<span class="gst-badge">SGST 9% + CGST 9%</span>
+        Intra-state supply — tax is split between Karnataka state government and central government.`;
+    }
+    recalcAll();
+  }
+
+  radioIntra.addEventListener("change", () => updateUI(false));
+  radioInter.addEventListener("change", () => updateUI(true));
+
+  /* clicking the pill labels triggers the hidden radio inputs automatically */
+}
+
+/* ── Preview ────────────────────────────────────────── */
 function closePreview() {
   const modal = document.getElementById("invoicePreview");
   if (!modal || modal.hidden) return;
@@ -463,7 +519,6 @@ function showPreview() {
     alert("Please fill all billing fields first");
     return;
   }
-
   const productsArray = collectProducts();
   if (productsArray.length === 0) {
     alert("Select at least one product");
@@ -471,16 +526,11 @@ function showPreview() {
   }
 
   const totals = recalcAll();
-  const invoiceNumber =
-    currentInvoiceData?.invoiceData?.invoiceNumber ||
+  const invoiceNumber = currentInvoiceData?.invoiceData?.invoiceNumber ||
     `INV_AHSPL_${new Date().getFullYear()}_XXX (To be generated)`;
 
   const previewInvoice = {
-    billingName,
-    billingAddress,
-    contactNumber,
-    billingDate,
-    invoiceNumber,
+    billingName, billingAddress, contactNumber, billingDate, invoiceNumber,
     products: productsArray,
   };
 
@@ -499,24 +549,20 @@ function showPreview() {
   }
 }
 
+/* ── Firebase: generate invoice number ─────────────── */
 async function generateInvoiceNumber() {
   const db = await getDb();
-  const { doc, runTransaction } = await import(
-    "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js"
-  );
-
+  const { doc, runTransaction } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js");
   const counterRef = doc(db, "settings", "invoiceCounter");
-  const START_COUNT = 49; // first invoice will be INV_AHSPL_YYYY_050
+  const START_COUNT = 49;
 
   const newCount = await runTransaction(db, async (transaction) => {
     const counterSnap = await transaction.get(counterRef);
     let current = START_COUNT;
-
     if (counterSnap.exists()) {
       const parsed = Number(counterSnap.data().value);
       current = Number.isFinite(parsed) ? parsed : START_COUNT;
     }
-
     const next = current + 1;
     transaction.set(counterRef, { value: next }, { merge: true });
     return next;
@@ -528,29 +574,18 @@ async function generateInvoiceNumber() {
 
 async function saveInvoiceToFirestore(invoiceData) {
   const db = await getDb();
-  const { collection, addDoc, serverTimestamp } = await import(
-    "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js"
-  );
-
+  const { collection, addDoc, serverTimestamp } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js");
   const invoicesCol = collection(db, "invoices");
-  const docRef = await addDoc(invoicesCol, {
-    ...invoiceData,
-    timestamp: serverTimestamp(),
-  });
+  const docRef = await addDoc(invoicesCol, { ...invoiceData, timestamp: serverTimestamp() });
   return docRef.id;
 }
 
+/* ── PDF generation ─────────────────────────────────── */
 async function generatePDF(invoice, totals) {
-  if (!window.jspdf?.jsPDF) {
-    throw new Error("PDF library failed to load. Refresh the page and try again.");
-  }
-  if (!window.html2canvas) {
-    throw new Error("PDF renderer failed to load. Refresh the page and try again.");
-  }
+  if (!window.jspdf?.jsPDF) throw new Error("PDF library failed to load. Refresh the page and try again.");
+  if (!window.html2canvas) throw new Error("PDF renderer failed to load. Refresh the page and try again.");
 
-  if (!logoDataUrl) {
-    await loadLogoForPdf();
-  }
+  if (!logoDataUrl) await loadLogoForPdf();
 
   const wrapper = document.createElement("div");
   wrapper.style.cssText = "position:absolute;left:-100000px;top:0;width:860px;min-width:860px;overflow:visible;background:#fff;";
@@ -559,27 +594,15 @@ async function generatePDF(invoice, totals) {
 
   const invoiceBox = wrapper.querySelector(".invoice-box");
   const images = [...invoiceBox.querySelectorAll("img")];
-  await Promise.all(
-    images.map(
-      (img) =>
-        new Promise((resolve) => {
-          if (img.complete) {
-            resolve();
-            return;
-          }
-          img.onload = resolve;
-          img.onerror = resolve;
-        })
-    )
-  );
+  await Promise.all(images.map((img) => new Promise((resolve) => {
+    if (img.complete) { resolve(); return; }
+    img.onload = resolve;
+    img.onerror = resolve;
+  })));
 
   try {
     const canvas = await window.html2canvas(invoiceBox, {
-      scale: 2,
-      useCORS: true,
-      allowTaint: false,
-      backgroundColor: "#ffffff",
-      logging: false,
+      scale: 2, useCORS: true, allowTaint: false, backgroundColor: "#ffffff", logging: false,
     });
 
     const { jsPDF } = window.jspdf;
@@ -593,7 +616,6 @@ async function generatePDF(invoice, totals) {
 
     let heightLeft = imgHeight;
     let position = margin;
-
     pdf.addImage(imgData, "PNG", margin, position, contentWidth, imgHeight);
     heightLeft -= pageHeight - margin * 2;
 
@@ -610,10 +632,12 @@ async function generatePDF(invoice, totals) {
   }
 }
 
+/* ── App init ───────────────────────────────────────── */
 function initApp() {
   renderProductRows();
   loadLogoForPdf();
   recalcAll();
+  initSupplyToggle();
 
   const today = new Date().toISOString().split("T")[0];
   const billingDate = document.getElementById("billingDate");
@@ -622,14 +646,11 @@ function initApp() {
   document.getElementById("generateBtn")?.addEventListener("click", async () => {
     const built = buildInvoiceFromForm();
     if (!built) return;
-
     const { totals } = built;
-
     try {
       const invoiceNumber = await generateInvoiceNumber();
       const invoiceData = { ...built.invoiceData, invoiceNumber };
       await saveInvoiceToFirestore(invoiceData);
-
       currentInvoiceData = { invoiceData, totals };
       alert(`Invoice ${invoiceNumber} saved successfully. You can now download the PDF.`);
     } catch (error) {
@@ -641,9 +662,7 @@ function initApp() {
   document.getElementById("previewBtn")?.addEventListener("click", showPreview);
   document.getElementById("closePreviewBtn")?.addEventListener("click", closePreview);
   document.querySelector("[data-close-preview]")?.addEventListener("click", closePreview);
-  document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") closePreview();
-  });
+  document.addEventListener("keydown", (event) => { if (event.key === "Escape") closePreview(); });
 
   document.getElementById("downloadBtn")?.addEventListener("click", async () => {
     const downloadBtn = document.getElementById("downloadBtn");
@@ -653,12 +672,10 @@ function initApp() {
         if (!localInvoice) return;
         currentInvoiceData = localInvoice;
       }
-
       const { invoiceData, totals } = currentInvoiceData;
       const originalText = downloadBtn.textContent;
       downloadBtn.disabled = true;
       downloadBtn.textContent = "Generating PDF...";
-
       const pdfDoc = await generatePDF(invoiceData, totals);
       pdfDoc.save(`invoice_${invoiceData.invoiceNumber}.pdf`);
       downloadBtn.textContent = originalText;

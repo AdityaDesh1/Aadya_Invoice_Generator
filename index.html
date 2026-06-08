@@ -11,6 +11,8 @@
 <body>
   <div class="container">
     <h1>🧾 Tax Invoice Generator</h1>
+
+    <!-- ── Billing Information ── -->
     <section class="billing-section">
       <h2>Billing Information</h2>
       <div class="form-row">
@@ -21,8 +23,31 @@
         <label>Billing Address <input type="text" id="billingAddress" placeholder="Street, city, state"></label>
         <label>Billing Date <input type="date" id="billingDate"></label>
       </div>
+
+      <!-- Supply Location Toggle -->
+      <div class="supply-divider"></div>
+      <div class="supply-location-label">Supply Location</div>
+      <div class="supply-toggle-group">
+        <label class="supply-pill active" id="pillIntra" for="supplyIntra">
+          <span class="pill-dot"></span>
+          📍 Within Karnataka
+        </label>
+        <input type="radio" id="supplyIntra" name="supplyLocation" value="intra" checked>
+
+        <label class="supply-pill" id="pillInter" for="supplyInter">
+          <span class="pill-dot"></span>
+          🗺️ Outside Karnataka
+        </label>
+        <input type="radio" id="supplyInter" name="supplyLocation" value="inter">
+      </div>
+
+      <div class="gst-info-note intra" id="gstInfoNote">
+        <span class="gst-badge">SGST 9% + CGST 9%</span>
+        Intra-state supply — tax is split between Karnataka state government and central government.
+      </div>
     </section>
 
+    <!-- ── Products / Services ── -->
     <section class="products-section">
       <h2>Products / Services</h2>
       <div class="table-wrapper">
@@ -42,28 +67,45 @@
       </div>
     </section>
 
+    <!-- ── Summary ── -->
     <section class="summary-section">
       <div class="overall-discount">
         <label>Overall Discount (%) <input type="number" id="overallDiscount" min="0" value="0" step="0.1"></label>
+
+        <!-- Computer-generated stamp -->
+        <div class="generated-stamp">
+          <div class="stamp-icon-wrap">🤖</div>
+          <div class="stamp-text-wrap">
+            <div class="stamp-title">Computer Generated Invoice</div>
+            <div class="stamp-sub">
+              LinQMD Invoice System · Aadya Health Sciences Pvt Ltd<br>
+              GSTIN: 29AAZCA5898A1ZX · No physical signature required
+            </div>
+          </div>
+        </div>
       </div>
+
       <div class="totals">
-        <p>Subtotal: ₹<span id="subtotal">0</span></p>
-        <p>Invoice Discount: ₹<span id="invoiceDiscount">0</span></p>
-        <p>Taxable Amount: ₹<span id="taxable">0</span></p>
-        <p>SGST (9%): ₹<span id="sgst">0</span></p>
-        <p>CGST (9%): ₹<span id="cgst">0</span></p>
-        <p><strong>Grand Total: ₹<span id="grandTotal">0</span></strong></p>
-        <p class="words" id="amountWords"></p>
+        <p>Subtotal: ₹<span id="subtotal">0.00</span></p>
+        <p>Invoice Discount: ₹<span id="invoiceDiscount">0.00</span></p>
+        <p>Taxable Amount: ₹<span id="taxable">0.00</span></p>
+        <p id="sgstRow">SGST (9%): ₹<span id="sgst">0.00</span></p>
+        <p id="cgstRow">CGST (9%): ₹<span id="cgst">0.00</span></p>
+        <p id="igstRow">IGST (18%): ₹<span id="igst">0.00</span></p>
+        <p><strong>Grand Total: ₹<span id="grandTotal">0.00</span></strong></p>
+        <p class="words" id="amountWords">Zero Rupees Only</p>
       </div>
     </section>
 
+    <!-- ── Action Buttons ── -->
     <div class="action-buttons">
       <button id="previewBtn" type="button">📄 Preview Invoice</button>
-      <button id="generateBtn" type="button">💾 Save & Generate Invoice</button>
+      <button id="generateBtn" type="button">💾 Save &amp; Generate Invoice</button>
       <button id="downloadBtn" type="button">⬇️ Download PDF</button>
     </div>
   </div>
 
+  <!-- ── Preview Modal ── -->
   <div id="invoicePreview" class="preview-modal" hidden aria-hidden="true">
     <div class="preview-modal-backdrop" data-close-preview></div>
     <div class="preview-modal-dialog" role="dialog" aria-labelledby="previewTitle">
@@ -74,6 +116,7 @@
       <div class="preview-modal-body" id="previewContent"></div>
     </div>
   </div>
+
   <script type="module" src="script.js"></script>
 </body>
 </html>
